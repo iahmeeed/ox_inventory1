@@ -1,0 +1,1218 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --radius: 0.5rem;
+
+    /* Default theme colors (will be overridden by JavaScript theme system) */
+    --background: linear-gradient(180deg, #000000d9, #0000004d 20%, #0000, #0000004d 80%, #000000d9);
+    --foreground: #f9fafb;
+    --primary: #3b82f6;
+    --primaryForeground: #f9fafb;
+    --secondary: linear-gradient(180deg, #000000d9, #0000004d 20%, #0000, #0000004d 80%, #000000d9);
+    --secondaryForeground: #d1d5db;
+    --muted: #4b5563;
+    --mutedForeground: #9ca3af;
+    --border: #4b5563;
+    --input: #4b5563;
+    --ring: #3b82f6;
+
+    /* Custom inventory colors */
+    --mainColor: var(--background);
+    --textColor: var(--foreground);
+    --secondaryColor: var(--secondary);
+    --secondaryColorHighlight: var(--muted);
+    --secondaryColorLight: rgba(0, 0, 0, 0.5);
+    --secondaryColorDark: rgba(12, 12, 12, 0.8);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Use CSS variables instead of SCSS variables for dynamic theming */
+$mainColor: var(--mainColor);
+$textColor: var(--textColor);
+$mainFont: Gantari;
+
+$secondaryColor: var(--secondaryColor);
+$secondaryColorHighlight: var(--secondaryColorHighlight);
+$secondaryColorLight: var(--secondaryColorLight);
+$secondaryColorDark: var(--secondaryColorDark);
+
+$gridCols: 4;
+$gridRows: 4;
+$gridSize: 10vh;
+$gridGap: 17px;
+$containerSize: calc(#{$gridRows} * #{$gridSize + 0.22vh} + #{$gridRows} * #{$gridGap});
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans',
+    'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100vh;
+  background: none !important;
+  overflow: hidden !important;
+  user-select: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+  /* Menyembunyikan scrollbar di Chrome */
+  width: 0.25vh;
+  /* Menyesuaikan lebar scrollbar */
+}
+
+#root {
+  height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.item-notification-container::-webkit-scrollbar {
+  display: none;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+  font-family: $mainFont;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.app-wrapper {
+  height: 100%;
+  width: 100%;
+  color: white;
+}
+
+.context-menu-list {
+  min-width: 125px;
+  background: linear-gradient(to left, #000000, #1d1d1d);
+  color: white;
+  padding: 6px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Initial transparent border */
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, 0.488),
+    0 0 15px 0.5px rgba(0, 0, 0, 0.288) inset,
+    0 0 20px 10px rgba(0, 0, 0, 0) inset;
+  outline: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.context-menu-item {
+  padding: 4px;
+  border-radius: 4px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  color: $textColor;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:active {
+    transform: none;
+  }
+
+  &:hover {
+    background-color: #87da214d;
+    cursor: pointer;
+  }
+}
+
+.tooltip-description {
+  padding-top: 5px;
+}
+
+.tooltip-markdown>p {
+  margin: 0;
+}
+
+button:active {
+  transform: translateY(3px);
+}
+
+.item-drag-preview {
+  width: 7.7vh;
+  height: 7.7vh;
+  z-index: 1;
+  position: fixed;
+  pointer-events: none;
+  top: 0;
+  left: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 7vh;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.inventory-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  padding-left: 5vh;
+  padding-right: 5vh;
+  background-color: #000000a8;
+
+  gap: 20px;
+}
+
+.inventory-control {
+  display: flex;
+
+  .inventory-control-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .inventory-control-input {
+    transition: 200ms;
+    padding: 16px 8px;
+    border-radius: 2.5%;
+    font-family: $mainFont;
+    font-size: 16px;
+    text-align: center;
+    outline: none;
+    border: none;
+    color: #fff;
+    background-color: $secondaryColor;
+
+    &:focus-within {
+      background-color: $secondaryColorDark;
+    }
+  }
+
+  .inventory-control-button {
+    font-size: 14px;
+    color: #fff;
+    background-color: $secondaryColor;
+    transition: 200ms;
+    padding: 12px 8px;
+    border-radius: 2.5%;
+    border: none;
+    text-transform: uppercase;
+    font-family: $mainFont;
+    width: 100%;
+    font-weight: 500;
+
+    &:hover {
+      background-color: $secondaryColorDark;
+    }
+  }
+}
+
+.useful-controls-dialog {
+  background-color: #2b2b2b81;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: absolute;
+  // top: 50%;
+  // left: 50%;
+  // transform: translate(-50%, -50%);
+  color: $textColor;
+  width: 370px;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  outline: none;
+}
+
+.useful-controls-dialog-overlay {
+  background-color: rgba(0, 0, 0, 0.0);
+}
+
+.useful-controls-dialog-title {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+}
+
+.useful-controls-dialog-close {
+  width: 25px;
+  height: 25px;
+  padding: 6px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  fill: $textColor;
+
+  &:hover {
+    background-color: $secondaryColorHighlight;
+    cursor: pointer;
+  }
+}
+
+.useful-controls-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.useful-controls-button {
+  position: absolute !important;
+  bottom: 25px;
+  right: 25px;
+  transition: 200ms !important;
+  border: none;
+  color: white;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  fill: white;
+  border-radius: 5% !important;
+  background-color: $secondaryColor !important;
+
+  &:hover {
+    background-color: $secondaryColorDark !important;
+    cursor: pointer;
+  }
+}
+
+.useful-controls-exit-button {
+  position: absolute !important;
+  right: 8px;
+  top: 8px;
+  border-radius: 2.5% !important;
+  color: grey !important;
+}
+
+// Dialog is used fro useful controls window
+
+
+// inventory grids
+.inventory-grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: calc($gridGap);
+}
+
+.inventory-grid-header-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+}
+
+.inventory-grid-container2 {
+  display: grid;
+  grid-template-columns: repeat(4, 10vh);
+  grid-auto-rows: 10.5vh;
+  overflow-y: scroll;
+  padding-right: 4px;
+
+  /* Add padding to create space between content and scrollbar */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.utility-slot-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.utility-slot-box {
+  width: 10vh;
+  height: 10vh;
+  min-width: 10vh;
+  min-height: 10vh;
+}
+
+.utility-row-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+
+.hotkey-slot-grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.character-image-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inventory-grid-container {
+  display: grid;
+  height: $containerSize;
+  grid-template-columns: repeat($gridCols, $gridSize);
+  grid-auto-rows: 8.50vh;
+  gap: $gridGap;
+  overflow-y: scroll;
+  padding-right: 10px;
+  /* Add padding to create space between content and scrollbar */
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #87da21;
+    border-radius: 10px;
+  }
+}
+
+@keyframes brightness {
+  0% {
+    filter: brightness(1);
+  }
+
+  100% {
+    filter: brightness(0.4);
+  }
+}
+
+.inventory-slot.fade-out {
+  animation: brightness 0.4s ease-out forwards;
+}
+
+.inventory-slot.dragging {
+  pointer-events: none;
+  /* Menghindari konflik pointer */
+}
+
+.img-rendering {
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.inventory-slot-label-box {
+  background-color: $mainColor;
+  color: $textColor;
+  text-align: center;
+  border-bottom-left-radius: 0.25vh;
+  border-bottom-right-radius: 0.25vh;
+  border-top-color: rgba(0, 0, 0, 0.2);
+  border-top-style: inset;
+  border-top-width: 1px;
+}
+
+.inventory-slot-label-text {
+  // text-transform: uppercase;
+  // white-space: nowrap;
+  // overflow: hidden;
+  // text-overflow: ellipsis;
+  padding: 5px 3px;
+  font-weight: bolder;
+  color: #ffffff;
+  font-family: $mainFont;
+  font-size: 1vh;
+  line-height: 1.2;
+}
+
+.inventory-slot-number {
+  background-color: white;
+  color: black;
+  height: 12px;
+  border-top-left-radius: 0.25vh;
+  border-bottom-right-radius: 0.25vh;
+  padding: 3px;
+  font-size: 12px;
+  font-family: $mainFont;
+}
+
+.item-slot-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+
+}
+
+.bgnone {
+  background: rgba(255, 255, 255, 0.007);
+}
+
+.gapsexy {
+  gap: 2.25rem;
+}
+
+.top7 {
+  top: 2.9rem;
+}
+
+.right12 {
+  right: 2rem;
+}
+
+.pyshopping {
+  padding-top: 3.25rem;
+  padding-bottom: 3.25rem;
+}
+
+.dragitemsheight {
+  height: 16.7rem;
+}
+
+.px7 {
+  padding-left: 1.75rem;
+  padding-right: 1.75rem;
+}
+
+.pxcustom {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  font-weight: bolder;
+  text-align: center;
+}
+
+.py2 {
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+.px10 {
+  padding-left: 2.15rem;
+  padding-right: 2.15rem;
+}
+
+.test {
+  border: 1px solid var(--White-White-25, rgba(255, 255, 255, .25));
+  background: var(--White-White-5, rgba(255, 255, 255, .05));
+}
+
+.testf {
+  border: 1px solid var(--White-White-25, rgba(255, 255, 255, .25));
+  background: var(--White-White-5, rgba(2, 2, 2, 0.151));
+}
+
+
+.item-slot-wrapper:hover {
+  background: linear-gradient(0deg, #ffffff0d, #ffffff0d), var(--Black-Black-50, rgba(18, 18, 18, .5));
+}
+
+.item-slot-header-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.item-hotslot-header-wrapper {
+  @extend .item-slot-header-wrapper;
+  justify-content: space-between !important;
+}
+
+.item-slot-info-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-self: flex-end;
+}
+
+.item-slot-currency-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 3px;
+
+  p {
+    text-shadow: 0.1vh 0.1vh 0 rgba(0, 0, 0, 0.7);
+  }
+}
+
+.item-slot-price-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding-right: 3px;
+
+  p {
+    text-shadow: 0.1vh 0.1vh 0 rgba(0, 0, 0, 0.7);
+  }
+}
+
+
+.tooltip-wrapper {
+  pointer-events: none;
+  display: flex;
+  width: auto;
+  flex-direction: column;
+}
+
+.box-tooltip {
+  background: linear-gradient(to left, #000000, #1d1d1d);
+  color: $textColor;
+  font-family: $mainFont;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* Initial transparent border */
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, 0.488),
+    0 0 15px 0.5px rgba(0, 0, 0, 0.288) inset,
+    0 0 20px 10px rgba(0, 0, 0, 0) inset;
+
+}
+
+.tooltip-header-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tooltip-crafting-duration {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    padding-right: 3px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+}
+
+.tooltip-ingredients {
+  padding-top: 5px;
+}
+
+.tooltip-ingredient {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  img {
+    width: 25px;
+    height: 25px;
+    padding-right: 5px;
+  }
+}
+
+// hotbar
+.hotbar-container {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: center;
+  width: 100%;
+  position: absolute;
+  bottom: 10vh;
+}
+
+.hotbar-item-slot {
+  width: $gridSize;
+  height: $gridSize;
+}
+
+.hotbar-slot-header-wrapper {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+// item notifications
+
+.item-notification-container {
+  display: flex;
+  overflow-x: scroll;
+  flex-wrap: nowrap;
+  gap: 12px;
+  position: absolute;
+  bottom: 20vh;
+  left: 50%;
+  width: 100%;
+  margin-left: calc(50% - calc($gridSize/2));
+  transform: translate(-50%);
+}
+
+.item-notification-action-box {
+  width: 100%;
+  color: $textColor;
+  background-color: $secondaryColor;
+  text-transform: uppercase;
+  text-align: center;
+  border-top-left-radius: 0.25vh;
+  border-top-right-radius: 0.25vh;
+  font-family: $mainFont;
+
+  p {
+    font-size: 11px;
+    padding: 2px;
+    font-weight: 600;
+  }
+}
+
+.item-notification-item-box {
+  height: $gridSize;
+  width: $gridSize;
+}
+
+.durability-bar {
+  background: rgba(0, 0, 0, 0.5);
+  height: 3px;
+  overflow: hidden;
+}
+
+.weight-bar {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.288);
+  /* Garis luar */
+  height: 0.8vh;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.transition-fade-enter {
+  opacity: 0;
+}
+
+.transition-fade-enter-active {
+  opacity: 1;
+  transition: opacity 200ms;
+}
+
+.transition-fade-exit {
+  opacity: 1;
+}
+
+.transition-fade-exit-active {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+.transition-fadezoom-enter {
+  opacity: 0;
+  scale: 0;
+}
+
+.transition-fadezoom-enter-active {
+  opacity: 1;
+  scale: 1;
+  transition: opacity 200ms, scale 200ms;
+}
+
+.transition-fadezoom-exit {
+  opacity: 1;
+  scale: 1;
+}
+
+.transition-fadezoom-exit-active {
+  opacity: 0;
+  scale: 0;
+  transition: opacity 200ms, scale 200ms;
+}
+
+.transition-slide-up-enter {
+  transform: translateY(200px)
+}
+
+.transition-slide-up-enter-active {
+  transform: translateY(0px);
+  transition: all 200ms;
+}
+
+.transition-slide-up-exit {
+  transform: translateY(0px);
+}
+
+.transition-slide-up-exit-active {
+  transform: translateY(200px);
+  transition: all 200ms;
+}
+
+.miring::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.388);
+  /* Garis luar */
+  border-radius: 8px;
+  /* Sesuaikan dengan kotak utama */
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.text-berjarak {
+  letter-spacing: 2.5px;
+  font-optical-sizing: auto;
+}
+
+.no-scrollbar {
+  padding-right: 4.5px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #87da21;
+    border-radius: 10px;
+  }
+}
+
+.kasimatiscroll::-webkit-scrollbar {
+  display: none;
+}
+
+.box-cart {
+  background-color: $secondaryColor;
+  border-radius: 7px;
+  position: relative;
+  transition: box-shadow 200ms ease-in-out;
+
+  /* Add transition for box-shadow */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 7px;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 7px;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(255, 255, 255, 0.388);
+    /* Initial transparent border */
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, 0.288),
+      0 0 15px 0.5px rgba(255, 255, 255, 0.188) inset,
+      0 0 20px 10px rgba(255, 255, 255, 0) inset;
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, 0.288),
+      0 0 30px 0.5px rgba(255, 255, 255, 0.188) inset,
+      0 0 25px 10px rgba(255, 255, 255, 0) inset;
+  }
+}
+
+
+
+// inventory slots
+.common {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2.5%;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: #c9c9c9;
+
+  transition: box-shadow 200ms ease-in-out;
+  /* Add transition for box-shadow */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(255, 255, 255, 0.388);
+    /* Initial transparent border */
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, 0.288),
+      0 0 15px 0.5px rgba(255, 255, 255, 0.188) inset,
+      0 0 20px 10px rgba(255, 255, 255, 0) inset;
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, 0.288),
+      0 0 30px 0.5px rgba(255, 255, 255, 0.188) inset,
+      0 0 25px 10px rgba(255, 255, 255, 0) inset;
+  }
+}
+
+.legendary {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2.5%;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: #f59e0b;
+
+  transition: box-shadow 200ms ease-in-out;
+  /* Add transition for box-shadow */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(255, 183, 29, 0.548);
+    /* Initial transparent border */
+    box-shadow: 0 0 0 .5px rgba(243, 210, 20, 0.288),
+      0 0 15px 0.5px rgba(243, 210, 20, 0.404) inset,
+      0 0 20px 10px rgba(243, 228, 20, 0) inset;
+    background: linear-gradient(to top left, rgba(243, 228, 20, 0.05), rgba(243, 202, 20, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 .5px rgba(243, 221, 20, 0.288),
+      0 0 30px 0.5px rgba(243, 210, 20, 0.188) inset,
+      0 0 25px 10px rgba(243, 210, 20, 0) inset;
+  }
+}
+
+.uncommon {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2.5%;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: #10b981;
+
+  transition: box-shadow 200ms ease-in-out;
+  /* Add transition for box-shadow */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(120, 255, 29, 0.388);
+    /* Initial transparent border */
+    box-shadow: 0 0 0 .5px rgba(128, 243, 20, 0.288),
+      0 0 15px 0.5px rgba(128, 243, 20, 0.188) inset,
+      0 0 20px 10px rgba(128, 243, 20, 0) inset;
+    background: linear-gradient(to top left, rgba(128, 243, 20, 0.05), rgba(128, 243, 20, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 .5px rgba(128, 243, 20, 0.288),
+      0 0 30px 0.5px rgba(128, 243, 20, 0.188) inset,
+      0 0 25px 10px rgba(128, 243, 20, 0) inset;
+  }
+}
+
+.ingredient {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 4.5vh;
+}
+
+.rare {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2.5%;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: #3b82f6;
+
+  transition: box-shadow 200ms ease-in-out;
+  /* Add transition for box-shadow */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(29, 255, 244, 0.388);
+    /* Initial transparent border */
+    box-shadow: 0 0 0 .5px rgba(29, 255, 244, 0.288),
+      0 0 15px 0.5px rgba(29, 255, 244, 0.188) inset,
+      0 0 20px 10px rgba(29, 255, 244, 0) inset;
+    background: linear-gradient(to top left, rgba(29, 255, 244, 0.05), rgba(29, 255, 244, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 .5px rgba(29, 255, 244, 0.288),
+      0 0 30px 0.5px rgba(29, 255, 244, 0.188) inset,
+      0 0 25px 10px rgba(29, 255, 244, 0) inset;
+  }
+}
+
+.epic {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2.5%;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: #ff69b4;
+
+  transition: box-shadow 200ms ease-in-out;
+  /* Add transition for box-shadow */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(255, 105, 180, 0.388); // Pink border
+    box-shadow: 0 0 0 .5px rgba(255, 105, 180, 0.288),
+      0 0 15px 0.5px rgba(255, 105, 180, 0.188) inset,
+      0 0 20px 10px rgba(255, 105, 180, 0) inset;
+    background: linear-gradient(to top left, rgba(255, 105, 180, 0.05), rgba(255, 105, 180, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+box-shadow: 0 0 0 .5px rgba(255, 105, 180, 0.288),
+      0 0 30px 0.5px rgba(255, 105, 180, 0.188) inset,
+      0 0 25px 10px rgba(255, 105, 180, 0) inset;
+  }
+}
+
+.unique {
+  background-color: $secondaryColor;
+  background-repeat: no-repeat;
+  background-position: center;
+  border-radius: 2.5%;
+  image-rendering: -webkit-optimize-contrast;
+  position: relative;
+  background-size: 7vh;
+  color: #ef4444;
+
+  transition: box-shadow 200ms ease-in-out;
+  /* Add transition for box-shadow */
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    background: linear-gradient(to top left, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    border-radius: 2.5%;
+    /* Match the border-radius of the parent */
+    border: 1px solid rgba(255, 59, 59, 0.388);
+    /* Initial transparent border */
+    box-shadow: 0 0 0 .5px rgba(255, 59, 59, 0.288),
+      0 0 15px 0.5px rgba(255, 59, 59, 0.188) inset,
+      0 0 20px 10px rgba(255, 59, 59, 0) inset;
+    background: linear-gradient(to top left, rgba(255, 59, 59, 0.05), rgba(255, 59, 59, 0) 50%);
+    -webkit-mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    mask: linear-gradient(to top left, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 1) 50%);
+    pointer-events: none;
+    /* Ensure it doesn't interfere with interactions */
+  }
+
+  &:hover {
+    box-shadow: 0 0 0 .5px rgba(255, 59, 59, 0.288),
+      0 0 30px 0.5px rgba(255, 59, 59, 0.188) inset,
+      0 0 25px 10px rgba(255, 59, 59, 0) inset;
+  }
+}
+
+.inputRange {
+  -webkit-appearance: none;
+  width: 95%;
+  height: 5px;
+  border-radius: 5px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.inputRange::-webkit-slider-thumb {
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #87da21;
+  cursor: pointer;
+}
